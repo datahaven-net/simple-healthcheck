@@ -46,9 +46,9 @@ def send_email(subject, body, from_email, to_email, config):
         server.quit() 
 
 
-def send_push_notification(message, config):
+def send_push_notification(message, config, subscribers_tokens):
     try:
-        for token_info in config["subscribers_tokens"]:
+        for token_info in subscribers_tokens:
             requests.post(
                 url=config["post_url"],
                 json=dict(
@@ -324,6 +324,7 @@ def main():
                 send_push_notification(
                     message='ALERT: %s' % (', '.join(unhealthy_hosts)),
                     config=CONFIG["push"]["config"],
+                    subscribers_tokens=CONFIG["push"]["subscribers_tokens"],
                 )
             except:
                 traceback.print_exc()
