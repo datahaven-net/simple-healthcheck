@@ -12,6 +12,7 @@ import urllib3
 import json
 import smtplib
 import traceback
+import subprocess
 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -96,13 +97,15 @@ def prepare_report(history_filename):
  
     """
     global CONFIG
-
     report_text = ""
     with open(history_filename, 'r') as health_check_file:
         lines = health_check_file.readlines()
         for index, host in enumerate(CONFIG["hosts"]):
-            report_text += f"{host['host'].replace('://', ':  ')}   {lines[index]}"
-
+            report_text += "{0:7} {1:30} {2}".format(
+                host['host'].split('://')[0],
+                host['host'].split('://')[1],
+                lines[index],
+            )
     return report_text
 
 
@@ -171,9 +174,11 @@ def single_test(host, method='ping', verbose=False):
         return True
 
     if method == 'ping':
-        ret_code = os.system(f'/bin/ping -c 1 {host} 1>/dev/null')
+        proc = subprocess.Popen(f"/bin/ping -c 1 {host}", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        _out, _err = proc.communicate()
+        ret_code = proc.returncode
         if verbose:
-            print(method, host, 'OK' if ret_code == 0 else 'FAIL')
+            print(method, host, 'OK' if ret_code == 0 else 'FAIL\n' + _out.decode() + '\n' + _err.decode())
         return ret_code == 0
 
     if verbose:
