@@ -247,6 +247,11 @@ def main():
         method, host = get_method_host(host_info["host"])
         if single_test(host, method, verbose=verbose):
             health_results[index] = "+"
+        else:
+            if host_info.get('reliable'):
+                # When we detect a failed connection towards "reliable" host - stop and exit
+                print('connection towards reliable host is broken')
+                return False
 
     # If file is empty, write health results for the first time.
     try:
