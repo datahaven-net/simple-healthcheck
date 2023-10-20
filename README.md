@@ -8,7 +8,7 @@ When some of your hosts are not passing sequentially few health checks script tr
 
 Script holds history of the health checks in a text file, every next run of the `simple_healthcheck` generates new record in the history file.
 
-        usage: simple_monitor [-h] -c CONFIG -t TESTS_HISTORY [-v]
+        usage: simple_healthcheck.py [-h] -c CONFIG -t TESTS_HISTORY [-v]
 
 
         optional arguments:
@@ -46,7 +46,7 @@ To configure notifications you need to provide connection details in the `config
 
 ## health checks
 
-There are few different types of health checks currently implemented that can be used to monitor your remote hosts:
+There are few different protocols for health checks currently implemented that can be used to monitor your remote hosts:
 
 * `http`: single HTTP request will be sent to the provided host and response is expected to be HTTP 200 status code
 * `https`: single HTTPS request will be sent to the provided host and response is expected to be HTTP 200 status code
@@ -55,9 +55,21 @@ There are few different types of health checks currently implemented that can be
 * `dnstcp`: host will be tested with socket connection using `SOCK_STREAM` protocol (TCP)
 
 
+
 ## configuration
 
-Create a JSON file with configuration details, here is a sample file for you:
+Create a JSON file with configuration details.
+
+In the `"hosts"` section of the config JSON you will list all of the hosts that needs to be tested.
+Each record in that list is a dictionary with such items:
+
+* `"host": "<protocol>://<address>"` is a mandatory item that defines the health check method and the target address
+* `"notify_once": <true/false>` is an optional item with default value `false`, set this to `true` if you would like to be notified only once when address is not reachable
+* `"reliable": <true/false>` is an optional item with default value `false`, set this to `true` and the script will not produce any alerts when this address is not reachable. This is usefull if machine where the `simple-healthcheck` is executing is not stable or also have issues with internet connection - prevents false-positive alerts. 
+
+Other sections of the config are: `"email"`, `"sms"` and `"push"`. There you define details of the alerts that will be triggered.
+
+Here is a sample file for you:
 
         cat config.json
         {
@@ -102,6 +114,10 @@ Create a JSON file with configuration details, here is a sample file for you:
                 ]
             },
             "hosts": [
+                {
+                    "reliable": true,
+                    "host": "https://google.com"
+                },
                 {
                     "host": "ping://host-to-be-checked-with-ping.com"
                 },
