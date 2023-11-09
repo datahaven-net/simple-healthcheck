@@ -185,7 +185,7 @@ def single_test(host, method='ping', params=None, verbose=False):
             ns_list = params.get('name_servers')
             if ns_list:
                 for ns in ns_list:
-                    if not _out.count(ns):
+                    if not _out.decode().count(ns):
                         if verbose:
                             print(f'    nameserver {ns} was not found in the "dig" output')
                         return False
