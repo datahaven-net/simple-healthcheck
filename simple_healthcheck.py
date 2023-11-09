@@ -109,7 +109,7 @@ def prepare_report(history_filename):
     return report_text
 
 
-def single_test(host, method='ping', verbose=False):
+def single_test(host, method='ping', params=None, verbose=False):
     """
     Executes system `ping` util to check availability of given host.
     """
@@ -173,6 +173,24 @@ def single_test(host, method='ping', verbose=False):
             print(method, host, 'OK')
         return True
 
+    if method == 'dnsdig':
+        proc = subprocess.Popen(f"/bin/dig {host} +short NS", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        _out, _err = proc.communicate()
+        ret_code = proc.returncode
+        if verbose:
+            print(method, host, 'OK' if ret_code == 0 else 'FAIL\n' + _out.decode() + '\n' + _err.decode())
+        if ret_code != 0:
+            return False
+        if params:
+            ns_list = params.get('name_servers')
+            if ns_list:
+                for ns in ns_list:
+                    if not _out.count(ns):
+                        if verbose:
+                            print(f'    nameserver {ns} was not found in the "dig" output')
+                        return False
+        return True
+
     if method == 'ping':
         proc = subprocess.Popen(f"/bin/ping -c 1 {host}", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         _out, _err = proc.communicate()
@@ -207,6 +225,9 @@ def get_method_host(full_host):
     elif host.startswith('dnstcp://'):
         method = 'dnstcp'
         host = host.replace('dnstcp://', '')
+    elif host.startswith('dnsdig://'):
+        method = 'dnsdig'
+        host = host.replace('dnsdig://', '')
     return method, host
 
 
@@ -245,7 +266,7 @@ def main():
     health_results = ["-", ] * len(CONFIG["hosts"])
     for index, host_info in enumerate(CONFIG["hosts"]):
         method, host = get_method_host(host_info["host"])
-        if single_test(host, method, verbose=verbose):
+        if single_test(host, method, params=host_info, verbose=verbose):
             health_results[index] = "+"
         else:
             if host_info.get('reliable'):

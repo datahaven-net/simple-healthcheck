@@ -53,6 +53,7 @@ There are few different protocols for health checks currently implemented that c
 * `ping`: host will be verified with `/bin/ping` system call
 * `dns`: host will be tested with socket connection using `SOCK_DGRAM` protocol (UDP)
 * `dnstcp`: host will be tested with socket connection using `SOCK_STREAM` protocol (TCP)
+* `dnsdig`: host will be tested with `/bin/dig` system call
 
 
 
@@ -138,6 +139,14 @@ Here is a sample file for you:
                 },
                 {
                     "host": "dnstcp://host-to-be-checked-via-dns-using-tcp.com"
+                },
+                {
+                    "host": "dnsdig://host-to-be-checked-with-dig-call.com",
+                    "name_servers": [
+                        "expected-nameserver1.some-provider.com",
+                        "expected-nameserver2.some-provider.com",
+                        "expected-nameserver3.some-provider.com"
+                    ]
                 },
                 {
                     "host": "https://epp.whois.ai"
