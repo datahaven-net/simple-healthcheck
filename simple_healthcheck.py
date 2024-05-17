@@ -114,8 +114,13 @@ def single_test(host, method='ping', params=None, verbose=False):
     Executes system `ping` util to check availability of given host.
     """
     if method in ['http', 'https', ]:
+        if params:
+            try:
+                timeout = int(params.get('timeout', 10))
+            except:
+                timeout = 10
         try:
-            req = requests.get('%s://%s' % (method, host, ),  verify=True, timeout=10)
+            req = requests.get('%s://%s' % (method, host, ),  verify=True, timeout=timeout)
             req.raise_for_status()
         except Exception as e:
             if verbose:
@@ -126,6 +131,11 @@ def single_test(host, method='ping', params=None, verbose=False):
         return True
 
     if method == 'dnstcp':
+        if params:
+            try:
+                timeout = int(params.get('timeout', 10))
+            except:
+                timeout = 10
         captive_dns_addr = ""
         try:
             captive_dns_addr = socket.gethostbyname("ThisDomainMustNotExist1234.notexist")
@@ -138,7 +148,7 @@ def single_test(host, method='ping', params=None, verbose=False):
                     print(method, host, 'DNS PROBE NOT POSSIBLE')
                 return False
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.settimeout(10)
+            s.settimeout(timeout)
             s.connect((host, 53))
             s.close()
         except Exception as e:
@@ -150,6 +160,11 @@ def single_test(host, method='ping', params=None, verbose=False):
         return True
 
     if method == 'dns':
+        if params:
+            try:
+                timeout = int(params.get('timeout', 10))
+            except:
+                timeout = 10
         captive_dns_addr = ""
         try:
             captive_dns_addr = socket.gethostbyname("ThisDomainMustNotExist1234.notexist")
@@ -162,7 +177,7 @@ def single_test(host, method='ping', params=None, verbose=False):
                     print(method, host, 'DNS PROBE NOT POSSIBLE')
                 return False
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s.settimeout(10)
+            s.settimeout(timeout)
             s.sendto(b'', (host, 53))
             s.close()
         except Exception as e:
