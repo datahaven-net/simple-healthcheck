@@ -214,6 +214,24 @@ def single_test(host, method='ping', params=None, verbose=False):
             print(method, host, 'OK' if ret_code == 0 else 'FAIL\n' + _out.decode() + '\n' + _err.decode())
         return ret_code == 0
 
+    if method == 'whois':
+        cmd = f"/bin/whois {host}"
+        if params:
+            whois_host = params.get('whois_host')
+            whois_port = params.get('whois_port')
+            if whois_host and whois_port:
+                cmd = f"/bin/whois --host {whois_host} --port {whois_port} {host}"
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        _out, _err = proc.communicate()
+        ret_code = proc.returncode
+        if verbose:
+            print(method, host, 'OK' if ret_code == 0 else 'FAIL\n' + _out.decode() + '\n' + _err.decode())
+        if ret_code != 0:
+            return False
+        if not _out.count('Domain Status: active'):
+            return False
+        return True
+
     if verbose:
         print(method, host, 'UNKNOWN METHOD')
     return False
@@ -243,6 +261,9 @@ def get_method_host(full_host):
     elif host.startswith('dnsdig://'):
         method = 'dnsdig'
         host = host.replace('dnsdig://', '')
+    elif host.startswith('whois://'):
+        method = 'whois'
+        host = host.replace('whois://', '')
     return method, host
 
 
