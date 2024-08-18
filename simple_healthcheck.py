@@ -217,10 +217,10 @@ def single_test(host, method='ping', params=None, verbose=False):
     if method == 'whois':
         cmd = f"/bin/whois {host}"
         if params:
-            whois_host = params.get('whois_host')
+            target_domain_name = params.get('target_domain_name')
             whois_port = params.get('whois_port')
-            if whois_host and whois_port:
-                cmd = f"/bin/whois --host {whois_host} --port {whois_port} {host}"
+            if target_domain_name and whois_port:
+                cmd = f"/bin/whois --host {host} --port {whois_port} {target_domain_name}"
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         _out, _err = proc.communicate()
         ret_code = proc.returncode
