@@ -94,7 +94,7 @@ def prepare_report(history_filename):
            domain1.com        -+++-
              host2.net        +++++
            server3.org        ++-++
- 
+
     """
     global CONFIG
     report_text = ""
@@ -223,9 +223,11 @@ def single_test(host, method='ping', params=None, verbose=False):
                 cmd = f"/bin/whois --host {host} --port {whois_port} {target_domain_name}"
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         _out, _err = proc.communicate()
+        _out = _out.decode()
+        _err = _err.decode()
         ret_code = proc.returncode
         if verbose:
-            print(method, host, 'OK' if ret_code == 0 else 'FAIL\n' + _out.decode() + '\n' + _err.decode())
+            print(method, host, 'OK' if ret_code == 0 else 'FAIL\n' + _out + '\n' + _err)
         if ret_code != 0:
             return False
         if not _out.count('Domain Status: active'):
