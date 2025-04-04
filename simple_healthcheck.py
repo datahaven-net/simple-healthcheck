@@ -367,7 +367,7 @@ def main():
                 alerts.append(('email', email_address, hosts_txt_report, ))
                 try:
                     send_email(
-                        subject='ALERT: %s' % (', '.join(unhealthy_hosts)),
+                        subject='ALERT %s: %s' % (time.strftime('%y/%m/%d %H:%M:%S'), ', '.join(unhealthy_hosts)),
                         body=hosts_txt_report,
                         from_email=CONFIG["email"]["config"]["from"],
                         to_email=email_address,
@@ -380,7 +380,7 @@ def main():
             alerts.append(('sms', '', hosts_txt_report, ))
             try:
                 send_sms(
-                    message='ALERT: %s' % (', '.join(unhealthy_hosts)),
+                    message='ALERT %s: %s' % (time.strftime('%y/%m/%d %H:%M:%S'), ', '.join(unhealthy_hosts)),
                     phone_numbers=CONFIG["sms"]["recipients"],
                     config=CONFIG["sms"]["config"],
                 )
@@ -391,7 +391,7 @@ def main():
             alerts.append(('push', '', hosts_txt_report, ))
             try:
                 send_push_notification(
-                    message='ALERT: %s' % (', '.join(unhealthy_hosts)),
+                    message='ALERT %s: %s' % (time.strftime('%y/%m/%d %H:%M:%S'), ', '.join(unhealthy_hosts)),
                     config=CONFIG["push"]["config"],
                     subscribers_tokens=CONFIG["push"]["subscribers_tokens"],
                 )
