@@ -5,6 +5,7 @@ Runs sequence of health checks for given list of hosts and trigger alerting noti
 import os
 import ssl
 import time
+import datetime
 import socket
 import argparse
 import requests
@@ -20,6 +21,10 @@ from email.mime.multipart import MIMEMultipart
 urllib3.disable_warnings()
 
 CONFIG = {}
+
+
+def tm():
+    return datetime.datetime.now(datetime.timezone.utc).strftime('%y/%m/%d %H:%M:%S')
 
 
 def send_email(subject, body, from_email, to_email, config):
@@ -367,7 +372,7 @@ def main():
                 alerts.append(('email', email_address, hosts_txt_report, ))
                 try:
                     send_email(
-                        subject='ALERT %s: %s' % (time.strftime('%y/%m/%d %H:%M:%S'), ', '.join(unhealthy_hosts)),
+                        subject='ALERT %s: %s' % (tm(), ', '.join(unhealthy_hosts)),
                         body=hosts_txt_report,
                         from_email=CONFIG["email"]["config"]["from"],
                         to_email=email_address,
@@ -380,7 +385,7 @@ def main():
             alerts.append(('sms', '', hosts_txt_report, ))
             try:
                 send_sms(
-                    message='ALERT %s: %s' % (time.strftime('%y/%m/%d %H:%M:%S'), ', '.join(unhealthy_hosts)),
+                    message='ALERT %s: %s' % (tm(), ', '.join(unhealthy_hosts)),
                     phone_numbers=CONFIG["sms"]["recipients"],
                     config=CONFIG["sms"]["config"],
                 )
@@ -391,7 +396,7 @@ def main():
             alerts.append(('push', '', hosts_txt_report, ))
             try:
                 send_push_notification(
-                    message='ALERT %s: %s' % (time.strftime('%y/%m/%d %H:%M:%S'), ', '.join(unhealthy_hosts)),
+                    message='ALERT %s: %s' % (tm(), ', '.join(unhealthy_hosts)),
                     config=CONFIG["push"]["config"],
                     subscribers_tokens=CONFIG["push"]["subscribers_tokens"],
                 )
