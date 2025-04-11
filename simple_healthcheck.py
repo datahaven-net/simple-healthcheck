@@ -24,7 +24,7 @@ CONFIG = {}
 
 
 def tm():
-    return datetime.datetime.now(datetime.timezone.utc).strftime('%y/%m/%d %H:%M:%S')
+    return datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-4))).strftime('%y/%m/%d %H:%M:%S %Z')
 
 
 def send_email(subject, body, from_email, to_email, config):
