@@ -141,6 +141,10 @@ Here is a sample file for you:
                     "host": "dnstcp://host-to-be-checked-via-dns-using-tcp.com"
                 },
                 {
+                    "host": "socket://host-to-be-checked-via-direct-socket-connection.com",
+                    "port": 12345
+                },
+                {
                     "host": "dnsdig://host-to-be-checked-with-dig-call.com",
                     "name_servers": [
                         "expected-nameserver1.some-provider.com",
