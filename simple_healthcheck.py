@@ -164,6 +164,35 @@ def single_test(host, method='ping', params=None, verbose=False):
             print(method, host, 'OK')
         return True
 
+    if method == 'socket':
+        if params:
+            try:
+                timeout = int(params.get('timeout', 10))
+            except:
+                timeout = 10
+        captive_dns_addr = ""
+        try:
+            captive_dns_addr = socket.gethostbyname("ThisDomainMustNotExist1234.notexist")
+        except:
+            pass
+        try:
+            host_addr = socket.gethostbyname(host)
+            if captive_dns_addr and captive_dns_addr == host_addr:
+                if verbose:
+                    print(method, host, 'DNS PROBE NOT POSSIBLE')
+                return False
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(timeout)
+            s.connect((host, params.get('port', 80)))
+            s.close()
+        except Exception as e:
+            if verbose:
+                print(method, host, e)
+            return False
+        if verbose:
+            print(method, host, 'OK')
+        return True
+
     if method == 'dns':
         if params:
             try:
@@ -265,6 +294,9 @@ def get_method_host(full_host):
     elif host.startswith('dnstcp://'):
         method = 'dnstcp'
         host = host.replace('dnstcp://', '')
+    elif host.startswith('socket://'):
+        method = 'socket'
+        host = host.replace('socket://', '')
     elif host.startswith('dnsdig://'):
         method = 'dnsdig'
         host = host.replace('dnsdig://', '')
